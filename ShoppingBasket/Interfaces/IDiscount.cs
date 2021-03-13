@@ -1,6 +1,6 @@
 ﻿namespace ShoppingBasket.Interfaces
 {
-    public interface IDiscounts
+    public interface IDiscount
     {
 
     }
