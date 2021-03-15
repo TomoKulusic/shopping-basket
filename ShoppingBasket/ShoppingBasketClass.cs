@@ -1,4 +1,5 @@
-﻿using ShoppingBasket.Interfaces;
+﻿using ShoppingBasket.Helpers;
+using ShoppingBasket.Interfaces;
 using ShoppingBasket.Models;
 using System;
 using System.Collections.Generic;
@@ -12,10 +13,10 @@ namespace ShoppingBasket
         public List<IDiscount> _discounts;
         public Basket _basket = new Basket();
 
-        public ShoppingBasketClass(List<Product> products)
+        public ShoppingBasketClass(List<Product> products, List<IDiscount> discounts)
         {
             _products = products;
-            //_discounts = _discounts;     
+            _discounts = discounts;
         }
 
         public List<Product> GetProductList()
@@ -35,11 +36,33 @@ namespace ShoppingBasket
 
             _basket.Products.Add(GetItemFromListById(productId));
 
-            //CalculateBasketDiscounts(Basket basket); // TODO
-
-            CalculateCurrentBasketSum(_basket);
+            var test = ApplyDiscountsOnBasket(_basket, _discounts);
 
         }
+
+        public Basket ApplyDiscountsOnBasket(Basket basket, List<IDiscount> discounts)
+        {
+            //check if discount exist for products in basket
+            var _discounts = discounts.Where(x => basket.Products.Any(product => product.Id.Equals(x.ProductId))).ToList();
+
+            if (_discounts is null)
+                return basket;
+
+            //checkForRelationalDiscount
+            var relationalDiscounts = _discounts.OfType<RelationalDiscount>().ToList();
+
+            if (relationalDiscounts != null)
+                DiscountHelper.CalculateRelationalDiscounts(relationalDiscounts, basket);
+
+            //check for single purchase discount TODO
+
+
+            CalculateCurrentBasketSum(basket);
+            return basket;
+        }
+
+
+
 
         public void CalculateCurrentBasketSum(Basket basket)
         {

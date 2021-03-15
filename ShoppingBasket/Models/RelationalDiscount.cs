@@ -8,6 +8,6 @@ namespace ShoppingBasket.Models
         public int ProductId { get; set; }
         public int DiscountedProductId { get; set; }
         public int ProductRequiredAmount { get; set; }
-        public int DiscountPercentage { get; set; }
+        public double DiscountPercentage { get; set; }
     }
 }
