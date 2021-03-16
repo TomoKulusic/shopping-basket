@@ -15,21 +15,21 @@ namespace ShoppingBasketTestApp.Utilities
                 { 
                     Id = 1,
                     Name = "Milk",
-                    Price = 1.15,
+                    Price = 1.15m,
                     Quantity = 50
                 },
                 new Product
                 { 
                     Id = 2,
                     Name = "Butter",
-                    Price = 0.80,
+                    Price = 0.80m,
                     Quantity = 50,
                 },
                 new Product
                 { 
                     Id = 3,
                     Name = "Bread",
-                    Price = 1.00,
+                    Price = 1.00m,
                     Quantity = 50
                 }
             };

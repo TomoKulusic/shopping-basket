@@ -16,13 +16,15 @@ namespace ShoppingBasketTestApp
             var products = shoppingBasket.GetProductList();
             var discounts = shoppingBasket.GetDiscounts();
 
-            var currentBasketStart = shoppingBasket.GetCurrentBasket();
+            //var currentBasketStart = shoppingBasket.GetCurrentBasket();
 
-            shoppingBasket.AddToBasket(2);
-            shoppingBasket.AddToBasket(2);
-            shoppingBasket.AddToBasket(3);
+            shoppingBasket.AddToBasket(2, 1);
+            shoppingBasket.AddToBasket(2, 1);
+            shoppingBasket.AddToBasket(3, 1);
+            //shoppingBasket.AddToBasket(1, 1);
+            //shoppingBasket.AddToBasket(1, 1);
 
-            var afterAddBasket = shoppingBasket.GetCurrentBasket();
+            //var afterAddBasket = shoppingBasket.GetCurrentBasket();
         }
     }
 }
