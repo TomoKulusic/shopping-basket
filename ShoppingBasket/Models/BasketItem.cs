@@ -11,5 +11,10 @@ namespace ShoppingBasket.Models
         public int Quantity { get; set; }
         public DateTime DateCreated { get; set; }
         public List<IDiscount> AppliedDiscounts { get; set; }
+
+        public BasketItem()
+        {
+            AppliedDiscounts = new List<IDiscount>();
+        }
     }
 }

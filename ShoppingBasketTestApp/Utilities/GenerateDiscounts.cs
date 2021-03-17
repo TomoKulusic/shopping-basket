@@ -26,14 +26,14 @@ namespace ShoppingBasket.Utilities
                  //   ProductRequiredAmount = 3,
                  //   Discount = 0.70m
                  //},
-                 //new QuantityDiscount()
-                 //{
-                 //   Id = 3,
-                 //   DiscountedProductId = 1,
-                 //   RequiredDiscountAmount = 1,
-                 //   Discount = 0,
-                 //   DiscountedAmout = 1,
-                 //}
+                 new QuantityDiscount()
+                 {
+                    Id = 1,
+                    DiscountedProductId = 1,
+                    RequiredDiscountAmount = 3,
+                    Discount = 0,
+                    DiscountedAmout = 1,
+                 }
             };
         }
     }

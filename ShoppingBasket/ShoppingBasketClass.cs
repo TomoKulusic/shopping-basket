@@ -1,8 +1,10 @@
-﻿using ShoppingBasket.Interfaces;
+﻿using ShoppingBasket.Helpers;
+using ShoppingBasket.Interfaces;
 using ShoppingBasket.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace ShoppingBasket
 {
@@ -110,10 +112,12 @@ namespace ShoppingBasket
 
         public void ApplyDiscountsOnBasket(Basket basket, List<IDiscount> discounts)
         {
-
-            foreach (var _basket in basket.BasketItems)
+            foreach (var basketItems in basket.BasketItems)
             {
-                var _product = _products.Where(x => x.Id == _basket.ProductId).FirstOrDefault();
+                //reset basket item discounts
+                basketItems.AppliedDiscounts.Clear();
+
+                var _product = _products.Where(x => x.Id == basketItems.ProductId).FirstOrDefault();
 
                 if (_product is null)
                     throw new ArgumentNullException("Cannot be null");
@@ -127,50 +131,21 @@ namespace ShoppingBasket
                         var discountType = _discount.GetType();
 
                         if (discountType.Name == "RelationalDiscount")
-                        {
-                            var currentDiscount = (RelationalDiscount)_discount;
+                            DiscountCalculator.CalculateRelationalDiscount(_discount, basket, _product);
 
-                            //checkForDiscountValidity
-
-                            //var getTopProductRequirementCount = basket.Products.Where(x => x.Id == discount.ProductId).ToList().Count;
-                            var getTopProductRequirementCount = basket.BasketItems.Where(x => x.ProductId == currentDiscount.ProductId).FirstOrDefault();
-                            var validity = currentDiscount.ProductRequiredAmount.Equals(getTopProductRequirementCount.Quantity);
-
-                            if (validity)
-                            {
-                                var productStandardPrice = _product.Price;
-                                var priceWithDiscount = _product.Price * _discount.Discount;
-
-                                basket.TotalSum = basket.TotalSum - (productStandardPrice - priceWithDiscount);
-                            }
-
-                        }
+                           
 
                         if (discountType.Name == "QuantityDiscount")
-                        {
-                            var disc = (QuantityDiscount)_discount;
-
-                            //checkForDiscountValidity
-                            //todo
-                        }
+                            DiscountCalculator.CalculateQuantityDiscount(_discount, basket, _product);
                     }
                 }
             }
         }
 
-
-
-
-        //public void CalculateCurrentBasketSum(BasketItem basket)
-        //{
-        //    basket.TotalSum = basket.Products.Select(x => x.Price).Sum();
-        //}
-
-        //public BasketItem GetCurrentBasket()
-        //{
-
-        //    return _basket;
-        //}
+        public Basket GetCurrentUserBasket(int userId)
+        {
+            return _basket.Where(x => x.UserId == userId).FirstOrDefault();
+        }
 
         public Product GetItemFromListById(int productId)
         {
@@ -182,9 +157,26 @@ namespace ShoppingBasket
             return product;
         }
 
-        //public decimal GetCurrentBasketSum()
-        //{
-        //    return _basket.Products.Select(x => x.Price).Sum();
-        //}
+        public string GetBasketStatusTxtForUser(int userId)
+        { 
+            var userBasket = _basket.Where(x => x.UserId == userId).FirstOrDefault();
+
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine($"Item\tQuantity");
+
+            foreach (var basketItem in userBasket.BasketItems)
+            {
+                var product = _products.SingleOrDefault(x => x.Id == basketItem.ProductId);
+                var appliedDiscountForProduct = basketItem.AppliedDiscounts.Where(x => x.DiscountedProductId == basketItem.ProductId).FirstOrDefault();
+
+                stringBuilder.AppendLine($"{product.Name}\t{basketItem.Quantity}");
+            }
+            //TODO
+            stringBuilder.AppendLine($"Discounts:\t{userBasket.TotalSum}");
+
+            stringBuilder.AppendLine($"Total:\t{userBasket.TotalSum}");
+
+            return stringBuilder.ToString();
+        }
     }
 }
