@@ -2,12 +2,12 @@
 
 namespace ShoppingBasket.Models
 {
-    public class RelationalDiscount : IDiscount
+    public class QuantityDiscount : IDiscount
     {
         public int Id { get; set; }
-        public int ProductId { get; set; }
         public int DiscountedProductId { get; set; }
-        public int ProductRequiredAmount { get; set; }
         public decimal Discount { get; set; }
+        public int RequiredDiscountAmount { get; set; }
+        public int DiscountedAmout { get; set; }
     }
 }

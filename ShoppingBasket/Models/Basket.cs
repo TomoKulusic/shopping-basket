@@ -1,18 +1,19 @@
-﻿using ShoppingBasket.Interfaces;
+﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace ShoppingBasket.Models
 {
     public class Basket
     {
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public decimal TotalSum { get; set; }
+        public List<BasketItem> BasketItems { get; set; }
+
         public Basket()
         {
-            Products = new List<Product>();
-            TotalSum = 0;
+            BasketItems = new List<BasketItem>();
         }
-
-        public List<Product> Products { get; set; }
-        //public List<IDiscount> Discounts { get; set; }
-        public double TotalSum { get; set; }
     }
 }

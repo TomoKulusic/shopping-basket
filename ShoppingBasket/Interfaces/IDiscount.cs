@@ -3,6 +3,7 @@
     public interface IDiscount
     {
         int Id { get; set; }
-        int ProductId { get; set; }
+        int DiscountedProductId { get; set; }
+        decimal Discount { get; set; }
     }
 }
