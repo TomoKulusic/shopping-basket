@@ -1,6 +1,6 @@
-﻿using ShoppingBasket.Interfaces;
+﻿using ShoppingBasketLib.Interfaces;
 
-namespace ShoppingBasket.Models
+namespace ShoppingBasketLib.Models
 {
     public class RelationalDiscount : IDiscount
     {
