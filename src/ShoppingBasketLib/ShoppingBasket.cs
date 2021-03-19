@@ -28,6 +28,9 @@ namespace ShoppingBasketLib
         {
             _products = products;
             _discounts = discounts;
+
+            if (_products is null)
+                throw new ArgumentNullException("Cannot be null");
         }
 
         public List<Product> GetProductList()
