@@ -1,4 +1,4 @@
-﻿namespace ShoppingBasket.Interfaces
+﻿namespace ShoppingBasketLib.Interfaces
 {
     public interface IDiscount
     {

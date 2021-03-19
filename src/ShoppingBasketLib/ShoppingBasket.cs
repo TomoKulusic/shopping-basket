@@ -1,20 +1,30 @@
-﻿using ShoppingBasket.Helpers;
-using ShoppingBasket.Interfaces;
-using ShoppingBasket.Models;
+﻿using Microsoft.Extensions.Logging;
+using ShoppingBasket.Helpers;
+using ShoppingBasketLib.Interfaces;
+using ShoppingBasketLib.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace ShoppingBasket
+namespace ShoppingBasketLib
 {
-    public class ShoppingBasketClass
+    public class ShoppingBasket
     {
         public List<Product> _products;
         public List<IDiscount> _discounts;
         public List<Basket> _basket = new List<Basket>();
+        public DiscountCalculator _discountCalculator;
 
-        public ShoppingBasketClass(List<Product> products, List<IDiscount> discounts)
+        private readonly ILogger<ShoppingBasket> _logger;
+
+        public ShoppingBasket(ILogger<ShoppingBasket> logger = null)
+        {
+            _logger = logger;
+            _discountCalculator = new DiscountCalculator();
+        }
+
+        public void Initialize(List<Product> products, List<IDiscount> discounts = null)
         {
             _products = products;
             _discounts = discounts;
@@ -44,7 +54,6 @@ namespace ShoppingBasket
 
             if (currentUserBasket != null)
             {
-                //checkIfProductIsAlreadyInBasket
                 var checkIfProductIsAlreadyInBasket = currentUserBasket.BasketItems.Any(x => x.ProductId == product.Id);
 
                 if (checkIfProductIsAlreadyInBasket)
@@ -65,19 +74,25 @@ namespace ShoppingBasket
                     );
                 }
 
-                CalculateBasketSum(currentUserBasket);
                 ApplyDiscountsOnBasket(currentUserBasket, _discounts);
 
             }
             else
             {
-                var newBasketId = _basket.Count() + 1;
+                _basket.Add(CreateNewBasketWithNewProduct(product, userId));
+                _logger?.LogInformation($"Product added to basket");
+            }
+        }
 
-                var newBasket = new Basket
-                {
-                    Id = newBasketId,
-                    UserId = userId,
-                    BasketItems = new List<BasketItem>
+        public Basket CreateNewBasketWithNewProduct(Product product, int userId)
+        {
+            var newBasketId = _basket.Count() + 1;
+
+            var newBasket = new Basket
+            {
+                Id = newBasketId,
+                UserId = userId,
+                BasketItems = new List<BasketItem>
                     {
                         new BasketItem
                         {
@@ -87,13 +102,11 @@ namespace ShoppingBasket
                             Quantity = 1
                         }
                     },
-                };
+            };
 
-                _basket.Add(newBasket);
+            _logger?.LogInformation($"New basket created");
 
-                CalculateBasketSum(newBasket);
-                ApplyDiscountsOnBasket(newBasket, _discounts);
-            }
+            return newBasket;
         }
 
         private void CalculateBasketSum(Basket newBasket)
@@ -108,10 +121,15 @@ namespace ShoppingBasket
             }
 
             newBasket.TotalSum = totalPricePerBasketItem.Sum();
+
+            _logger?.LogInformation($"Calculating basket sum for BasketId: {newBasket.Id}");
         }
 
         public void ApplyDiscountsOnBasket(Basket basket, List<IDiscount> discounts)
         {
+            //calculate the sum of the basket first
+            CalculateBasketSum(basket);
+
             foreach (var basketItems in basket.BasketItems)
             {
                 //reset basket item discounts
@@ -122,7 +140,7 @@ namespace ShoppingBasket
                 if (_product is null)
                     throw new ArgumentNullException("Cannot be null");
 
-                var discountForProductList = discounts.Where(x => x.DiscountedProductId == _product.Id).ToList();
+                var discountForProductList = discounts?.Where(x => x.DiscountedProductId == _product.Id).ToList();
 
                 if (discountForProductList != null)
                 {
@@ -131,12 +149,12 @@ namespace ShoppingBasket
                         var discountType = _discount.GetType();
 
                         if (discountType.Name == "RelationalDiscount")
-                            DiscountCalculator.CalculateRelationalDiscount(_discount, basket, _product);
+                            _discountCalculator.CalculateRelationalDiscount(_discount, basket, _product);
 
-                           
+
 
                         if (discountType.Name == "QuantityDiscount")
-                            DiscountCalculator.CalculateQuantityDiscount(_discount, basket, _product);
+                            _discountCalculator.CalculateQuantityDiscount(_discount, basket, _product);
                     }
                 }
             }
@@ -144,21 +162,21 @@ namespace ShoppingBasket
 
         public Basket GetCurrentUserBasket(int userId)
         {
-            return _basket.Where(x => x.UserId == userId).FirstOrDefault();
+            return _basket.FirstOrDefault(x => x.UserId == userId);
         }
 
         public Product GetItemFromListById(int productId)
         {
-            var product = _products.SingleOrDefault(x => x.Id == productId);
+            var product = _products.FirstOrDefault(x => x.Id == productId);
 
             if (product is null)
-                throw new Exception("Exception"); // todo refactoring
+                throw new ArgumentNullException("Value cannot be null");
 
             return product;
         }
 
         public string GetBasketStatusTxtForUser(int userId)
-        { 
+        {
             var userBasket = _basket.Where(x => x.UserId == userId).FirstOrDefault();
 
             var stringBuilder = new StringBuilder();

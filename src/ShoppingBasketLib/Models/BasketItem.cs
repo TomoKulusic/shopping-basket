@@ -1,8 +1,8 @@
-﻿using ShoppingBasket.Interfaces;
+﻿using ShoppingBasketLib.Interfaces;
 using System;
 using System.Collections.Generic;
 
-namespace ShoppingBasket.Models
+namespace ShoppingBasketLib.Models
 {
     public class BasketItem
     {

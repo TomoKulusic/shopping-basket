@@ -1,13 +1,19 @@
-﻿using ShoppingBasket.Interfaces;
-using ShoppingBasket.Models;
+﻿using Microsoft.Extensions.Logging;
+using ShoppingBasketLib.Interfaces;
+using ShoppingBasketLib.Models;
 using System;
 using System.Linq;
 
 namespace ShoppingBasket.Helpers
 {
-    public static class DiscountCalculator
+    public class DiscountCalculator
     {
-        internal static void CalculateRelationalDiscount(IDiscount discount, Basket basket, Product product)
+        private readonly ILogger<DiscountCalculator> _logger;
+        public DiscountCalculator(ILogger<DiscountCalculator> logger = null)
+        {
+            _logger = logger;
+        }
+        public void CalculateRelationalDiscount(IDiscount discount, Basket basket, Product product)
         {
             if (basket is null)
                 throw new ArgumentNullException("Basket value cannot be null", nameof(basket));
@@ -27,10 +33,12 @@ namespace ShoppingBasket.Helpers
 
                 basket.TotalSum = basket.TotalSum - (productStandardPrice - priceWithDiscount);
                 currentBasketItem.AppliedDiscounts.Add(discount);
+
+                _logger?.LogInformation($"Discount of {discount.Discount}% applied on {product.Name}");
             }
         }
 
-        internal static void CalculateQuantityDiscount(IDiscount discount, Basket basket, Product product)
+        public void CalculateQuantityDiscount(IDiscount discount, Basket basket, Product product)
         {
             if (basket is null)
                 throw new ArgumentNullException("Basket value cannot be null", nameof(basket));
@@ -50,6 +58,9 @@ namespace ShoppingBasket.Helpers
 
                 basket.TotalSum = basket.TotalSum - (itemAmountThatShouldBeDiscountedTotalPrice - priceWithDiscount);
                 currentBasketItem.AppliedDiscounts.Add(discount);
+
+                _logger?.LogInformation($"Discount of {discount.Discount}% applied on {product.Name}");
+
             }
         }
     }

@@ -1,4 +1,7 @@
-﻿using ShoppingBasket;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+using Microsoft.Extensions.Logging.Debug;
 using ShoppingBasket.Utilities;
 using ShoppingBasketTestApp.Utilities;
 using System;
@@ -9,14 +12,12 @@ namespace ShoppingBasketTestApp
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello Shopping Basket App!");
-            
-            var shoppingBasket = new ShoppingBasketClass(GenerateProducts.GetProducts(), GenerateDiscounts.GetDiscounts());
+            var serviceCollection = new ServiceCollection();
+            ConfigureServices(serviceCollection);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            var products = shoppingBasket.GetProductList();
-            var discounts = shoppingBasket.GetDiscounts();
-
-            //var currentBasketStart = shoppingBasket.GetCurrentBasket();
+            var shoppingBasket = serviceProvider.GetService<ShoppingBasketLib.ShoppingBasket>();
+            shoppingBasket.Initialize(GenerateProducts.GetProducts(), GenerateDiscounts.GetDiscounts());
 
             //first check
             shoppingBasket.AddToBasket(1, 1);
@@ -55,6 +56,19 @@ namespace ShoppingBasketTestApp
             var afterAddBasketTForthUser = shoppingBasket.GetCurrentUserBasket(4);
 
             Console.WriteLine(shoppingBasket.GetBasketStatusTxtForUser(4));
+        }
+
+        private static void ConfigureServices(ServiceCollection services)
+        {
+            services.AddLogging(config =>
+            {
+                config.AddDebug();
+                config.AddConsole();
+            }).Configure<LoggerFilterOptions>(options =>
+            {
+                options.AddFilter<DebugLoggerProvider>(null, LogLevel.Information);
+                options.AddFilter<ConsoleLoggerProvider>(null, LogLevel.Error);
+            }).AddTransient<ShoppingBasketLib.ShoppingBasket>();
         }
     }
 }

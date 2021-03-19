@@ -1,4 +1,4 @@
-﻿namespace ShoppingBasket.Models
+﻿namespace ShoppingBasketLib.Models
 {
     public class Product
     {
