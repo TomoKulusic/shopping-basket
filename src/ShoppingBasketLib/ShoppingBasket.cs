@@ -24,7 +24,7 @@ namespace ShoppingBasketLib
             _discountCalculator = new DiscountCalculator();
         }
 
-        public void Initialize(List<Product> products, List<IDiscount> discounts)
+        public void Initialize(List<Product> products, List<IDiscount> discounts = null)
         {
             _products = products;
             _discounts = discounts;
@@ -140,7 +140,7 @@ namespace ShoppingBasketLib
                 if (_product is null)
                     throw new ArgumentNullException("Cannot be null");
 
-                var discountForProductList = discounts.Where(x => x.DiscountedProductId == _product.Id).ToList();
+                var discountForProductList = discounts?.Where(x => x.DiscountedProductId == _product.Id).ToList();
 
                 if (discountForProductList != null)
                 {
